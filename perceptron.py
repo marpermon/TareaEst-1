@@ -1,8 +1,12 @@
 class perceptron:
-    def __init__(self, bits_to_index):
+    def __init__(self, bits_to_index, global_history_size):
         self.bits_to_index = bits_to_index
         self.size_of_branch_table = 2**bits_to_index
         self.branch_table = [0 for i in range(self.size_of_branch_table)]
+        self.global_history_size = global_history_size
+        self.global_history_reg = ""
+        for i in range(global_history_size):
+            self.global_history_reg += "0"
         self.total_predictions = 0
         self.total_taken_pred_taken = 0
         self.total_taken_pred_not_taken = 0
@@ -37,4 +41,21 @@ class perceptron:
         #Escriba aquí el código para actualizar
         #La siguiente línea es solo para que funcione la prueba
         #Quítela para implementar su código
-        a = PC
+        #Update GHR
+        if result == "T":
+            self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] + "1"
+        else:
+            self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] + "0"
+        #print("GHR = "+self.global_history_reg)
+
+        #Update stats
+        if result == "T" and result == prediction:
+            self.total_taken_pred_taken += 1
+        elif result == "T" and result != prediction:
+            self.total_taken_pred_not_taken += 1
+        elif result == "N" and result == prediction:
+            self.total_not_taken_pred_not_taken += 1
+        else:
+            self.total_not_taken_pred_taken += 1
+
+        self.total_predictions += 1
