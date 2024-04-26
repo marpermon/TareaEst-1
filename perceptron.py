@@ -5,6 +5,7 @@ class perceptron:
         self.bits_to_index = bits_to_index
         self.size_of_branch_table = 2**bits_to_index
         self.branch_table = [[0]*(self.global_history_size+1) for i in range(self.size_of_branch_table)]
+        #cada vector es 1 más grande que la historia porque el elemento 0 es el offset y no requiere un match con la historia
         self.total_predictions = 0
         self.total_taken_pred_taken = 0
         self.total_taken_pred_not_taken = 0
@@ -30,22 +31,31 @@ class perceptron:
         index = int(PC) % self.size_of_branch_table
         weights = self.branch_table[index]
         x_=self.global_history_reg
-        y=weights[0]#es así?
+        y=weights[0] #offset
         for i,j in zip(weights[1:],x_):
             if i==j: y += 1
-        else: y += -1
-        #Escriba aquí el código para predecir
-        #La siguiente línea es solo para que funcione la prueba
-        #Quítela para implementar su código
+            else: y += -1
+        
         return y
   
 
     def update(self, PC, result, prediction):
-        #Escriba aquí el código para actualizar
-        #La siguiente línea es solo para que funcione la prueba
-        #Quítela para implementar su código
-        #Update GHR
-        self.global_history_reg = self.global_history_reg[-self.global_history_size+1:]
+        index = int(PC) % self.size_of_branch_table
+        
+        t= 1 if result=="T" else -1
+        
+        if abs(prediction)<=(11.93*self.global_history_size + 14):
+            self.branch_table[index][0]+=t #primer peso, x0=1
+
+            for i in range(self.global_history_size):
+                if result=="T": #para no multiplicar
+                    self.branch_table[index][i+1]+=self.global_history_reg[i]
+                else:
+                    self.branch_table[index][i+1]-=self.global_history_reg[i]
+                    
+        prediction = "T" if prediction>0 else "N"
+        
+        self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] #eliminamos la primera
         if result == "T":
             self.global_history_reg.append(1)
         else:
