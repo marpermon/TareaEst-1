@@ -1,12 +1,10 @@
 class perceptron:
     def __init__(self, bits_to_index, global_history_size):
+        self.global_history_size = global_history_size
+        self.global_history_reg = [-1]*self.global_history_size
         self.bits_to_index = bits_to_index
         self.size_of_branch_table = 2**bits_to_index
-        self.branch_table = [0 for i in range(self.size_of_branch_table)]
-        self.global_history_size = global_history_size
-        self.global_history_reg = ""
-        for i in range(global_history_size):
-            self.global_history_reg += "0"
+        self.branch_table = [[0]*(self.global_history_size+1) for i in range(self.size_of_branch_table)]
         self.total_predictions = 0
         self.total_taken_pred_taken = 0
         self.total_taken_pred_not_taken = 0
@@ -30,11 +28,16 @@ class perceptron:
 
     def predict(self, PC):
         index = int(PC) % self.size_of_branch_table
-        branch_table_entry = self.branch_table[index]
+        weights = self.branch_table[index]
+        x_=self.global_history_reg
+        y=weights[0]#es así?
+        for i,j in zip(weights[1:],x_):
+            if i==j: y += 1
+        else: y += -1
         #Escriba aquí el código para predecir
         #La siguiente línea es solo para que funcione la prueba
         #Quítela para implementar su código
-        return "T"
+        return y
   
 
     def update(self, PC, result, prediction):
@@ -42,10 +45,11 @@ class perceptron:
         #La siguiente línea es solo para que funcione la prueba
         #Quítela para implementar su código
         #Update GHR
+        self.global_history_reg = self.global_history_reg[-self.global_history_size+1:]
         if result == "T":
-            self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] + "1"
+            self.global_history_reg.append(1)
         else:
-            self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] + "0"
+            self.global_history_reg.append(-1)
         #print("GHR = "+self.global_history_reg)
 
         #Update stats
