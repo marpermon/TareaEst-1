@@ -3,7 +3,7 @@ class perceptron:
         self.global_history_size = global_history_size
         self.global_history_reg = [-1]*self.global_history_size
         self.bits_to_index = bits_to_index
-        self.size_of_branch_table = 2**bits_to_index
+        self.size_of_branch_table = 2**self.bits_to_index
         self.branch_table = [[0]*(self.global_history_size+1) for i in range(self.size_of_branch_table)]
         #cada vector es 1 más grande que la historia porque el elemento 0 es el offset y no requiere un match con la historia
         self.total_predictions = 0
@@ -35,7 +35,7 @@ class perceptron:
         for i,j in zip(weights[1:],x_):
             if i==j: y += 1
             else: y += -1
-        
+
         return y
   
 
@@ -43,8 +43,8 @@ class perceptron:
         index = int(PC) % self.size_of_branch_table
         
         t= 1 if result=="T" else -1
-        
-        if abs(prediction)<=(11.93*self.global_history_size + 14):
+        #prediction*t<0 == sign(y)!=t
+        if prediction*t<0 or abs(prediction)<=(11.93*self.global_history_size + 14):
             self.branch_table[index][0]+=t #primer peso, x0=1
 
             for i in range(self.global_history_size):
