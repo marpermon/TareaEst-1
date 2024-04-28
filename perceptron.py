@@ -1,7 +1,8 @@
 class perceptron:
     def __init__(self, bits_to_index, global_history_size):
         self.global_history_size = global_history_size
-        self.global_history_reg = [-1]*self.global_history_size
+        self.global_history_reg = "0"*self.global_history_size
+        #ponemos 0s para tratar las historia como una string, luego interpretaremos esos 0s como -1s
         self.bits_to_index = bits_to_index
         self.size_of_branch_table = 2**self.bits_to_index
         self.branch_table = [[0]*(self.global_history_size+1) for i in range(self.size_of_branch_table)]
@@ -33,7 +34,7 @@ class perceptron:
         x_=self.global_history_reg
         y=weights[0] #offset
         for i,j in zip(weights[1:],x_):
-            if i==j: y += 1
+            if i==int(j): y += 1
             else: y += -1
 
         return y
@@ -46,20 +47,21 @@ class perceptron:
         #prediction*t<0 == sign(y)!=t
         if prediction*t<0 or abs(prediction)<=(11.93*self.global_history_size + 14):
             self.branch_table[index][0]+=t #primer peso, x0=1
-
+ 
             for i in range(self.global_history_size):
+                x=-1 if self.global_history_reg[i]=="0" else 1
                 if result=="T": #para no multiplicar
-                    self.branch_table[index][i+1]+=self.global_history_reg[i]
+                    self.branch_table[index][i+1]+=x
                 else:
-                    self.branch_table[index][i+1]-=self.global_history_reg[i]
+                    self.branch_table[index][i+1]-=x
                     
         prediction = "T" if prediction>0 else "N"
         
         self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] #eliminamos la primera
         if result == "T":
-            self.global_history_reg.append(1)
+            self.global_history_reg+="1"
         else:
-            self.global_history_reg.append(-1)
+            self.global_history_reg+="0"
         #print("GHR = "+self.global_history_reg)
 
         #Update stats
