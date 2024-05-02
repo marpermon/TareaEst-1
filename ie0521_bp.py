@@ -1,12 +1,24 @@
 class ie0521_bp:
     def __init__(self):
         #Escriba aquí el init de la clase
+        self.global_history_size = 7
+        self.global_history_reg = "0"*self.global_history_size
+        self.tag_1Hist_size=7
+        self.size_of_tag_1=2**(self.tag_1Hist_size)
+        self.tag_1=[0 for i in range(self.size_of_tag_1)]
+
+        self.bits_to_index = 7
+        self.size_of_bimodal = 2**self.bits_to_index
+        self.bimodal = [0 for i in range(self.size_of_bimodal)]
+        
+        #el pregictor no tiene u porque sólo tiene una tabla taggeada, para que u sirva debe tener más de una
+        
         self.total_predictions = 0
         self.total_taken_pred_taken = 0
         self.total_taken_pred_not_taken = 0
         self.total_not_taken_pred_taken = 0
         self.total_not_taken_pred_not_taken = 0
-        
+    
 
     def print_info(self):
         print("Parámetros del predictor:")
@@ -24,14 +36,75 @@ class ie0521_bp:
         print("\t% predicciones correctas:\t\t\t\t"+str(formatted_perc)+"%")
 
     def predict(self, PC):
-        #Escriba aquí el código para predecir
-        #La siguiente línea es solo para que funcione la prueba
-        #Quítela para implementar su código
-        return "T"
-  
+        
+        PC_index = int(PC) % self.tag_1Hist_size
+        tag_index = int(self.global_history_reg[-self.tag_1Hist_size:],2)
+        hashFunc = PC_index ^ tag_index
+        match=0
+        fila=0
+        for i in range(self.size_of_tag_1):#recorremos la tabla
+            if self.tag_1[i]!= 0: #primero vemos si la fila tiene algo, osea, que no sea igual a int(0)
+                if int(self.tag_1[i][:self.tag_1Hist_size]) == hashFunc: #vemos si el tag está en la fila
+                    match+=1 #ESO SIGNIFICA QUE HICIMOS MATCH
+                    fila = i
+                    # a la par del tag va a ir un dígito decimal de 3 bits que será el ctr
+                    if int(self.tag_1[i][self.tag_1Hist_size])<4:
+                        prediction = "N"
+                    else:
+                        prediction = "T"
+                        
+        if match==0: #si no hubo match nos pasamos al bimodal
+            bimodal_entry = self.bimodal[PC_index]
+            #print(bimodal_entry)
+            if bimodal_entry<2:
+                prediction = "N"
+            else:
+                prediction = "T"
+        
+        return [prediction, match, fila]
+            
+        """if int(self.tag_1[i][self.tag_1Hist_size]) in range(1,8):
+    #para que no se sature el contador int(self.tag_1[i][self.tag_1Hist_size])"""
 
-    def update(self, PC, result, prediction):
-        #Escriba aquí el código para actualizar
-        #La siguiente línea es solo para que funcione la prueba
-        #Quítela para implementar su código
-        a = PC
+    def update(self, PC, result, prediction, match, fila):
+        #siempre se actualiza el bimodal
+        PC_index = int(PC) % self.size_of_bimodal
+        if prediction == "T" and self.bimodal[PC_index]<3:#creamos saturación
+                self.bimodal[PC_index]+=1
+        elif prediction == "N" and self.bimodal[PC_index]>0:
+                self.bimodal[PC_index]-=1
+        
+        if match:
+            if prediction == "T" and int(self.tag_1[fila][self.tag_1Hist_size])<7:#creamos saturación
+                self.tag_1[fila]=self.tag_1[fila][:self.tag_1Hist_size]+str(int(self.tag_1[fila][self.tag_1Hist_size])+1)
+            elif prediction == "N" and int(self.tag_1[fila][self.tag_1Hist_size])>0:
+                self.tag_1[fila]=self.tag_1[fila][:self.tag_1Hist_size]+str(int(self.tag_1[fila][self.tag_1Hist_size])-1)
+        #en la tabla no podemos reemplazar un digito porque las strings no lo permiten, debemos reemplazar toda la string
+        else:
+            PC_index = int(PC) % self.tag_1Hist_size
+            tag_index = int(self.global_history_reg[-self.tag_1Hist_size:],2)
+            hashFunc = PC_index ^ tag_index
+            for i in range(self.size_of_tag_1):#recorremos la tabla
+                if self.tag_1[i]== 0:
+                    self.tag_1[i]=str(hashFunc)+"0"
+                    break
+                
+        self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] #eliminamos la primera
+        if result == "T":
+            self.global_history_reg+="1"
+        else:
+            self.global_history_reg+="0"
+        #print("GHR = "+self.global_history_reg)
+
+        #Update stats
+        if result == "T" and result == prediction:
+            self.total_taken_pred_taken += 1
+        elif result == "T" and result != prediction:
+            self.total_taken_pred_not_taken += 1
+        elif result == "N" and result == prediction:
+            self.total_not_taken_pred_not_taken += 1
+        else:
+            self.total_not_taken_pred_taken += 1
+
+        self.total_predictions += 1
+
