@@ -22,6 +22,7 @@ class pshared:
     def print_info(self):
         print("Parámetros del predictor:")
         print("\tTipo de predictor:\t\t\t\tP-Shared")
+        print("\tBits a indexar:\t\t\t\t\t"+str(self.bits_to_index))
         print("\tEntradas en el Predictor:\t\t\t"+str(2**self.bits_to_index))
         print("\tTamaño de los registros de historia global:\t"+str(self.global_history_size))
 
