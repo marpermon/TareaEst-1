@@ -76,7 +76,7 @@ class ie0521_bp:
                 self.bimodal[PC_index]-=1
         
         if match:
-            if result == "T" and int(self.tag_1[fila][self.lnt])<4:#creamos saturación
+            if result == "T" and int(self.tag_1[fila][self.lnt])<7:#creamos saturación
                 self.tag_1[fila]=self.tag_1[fila][:self.lnt]+str(int(self.tag_1[fila][self.lnt])+1)
             elif result == "N" and int(self.tag_1[fila][self.lnt])>0:
                 self.tag_1[fila]=self.tag_1[fila][:self.lnt]+str(int(self.tag_1[fila][self.lnt])-1)
