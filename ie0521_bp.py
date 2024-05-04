@@ -1,14 +1,14 @@
 class ie0521_bp:
     def __init__(self):
         
-        self.global_history_size = 5
-        self.global_history_reg = '0'*self.global_history_size
-        self.tag_1Hist_size=5
-        self.size_of_tag_1=2**(self.tag_1Hist_size)
+        self.global_history_size = 6 #def como sólo hay una tabla, la historia de ella es la misma que la global
+        self.global_history_reg = '0'*self.global_history_size #def  
+        self.global_history_pwr=2**(self.global_history_size) #def
+        self.size_of_tag_1=2**(self.global_history_size)
         self.tag_1=['0' for i in range(self.size_of_tag_1)]
-        self.lnt=len(str(2**self.tag_1Hist_size))
+        self.lnt=len(str(self.size_of_tag_1))
         #self.historia_fila=["x" for i in range(self.tag_1Hist_size)]
-        self.bits_to_index = 5
+        self.bits_to_index = 4
         self.size_of_bimodal = 2**self.bits_to_index
         self.bimodal = [0 for i in range(self.size_of_bimodal)]
         
@@ -39,7 +39,7 @@ class ie0521_bp:
     def predict(self, PC):
         
         PC_index = int(PC) % self.size_of_tag_1
-        tag_index = int(self.global_history_reg[-self.tag_1Hist_size:],2)
+        tag_index = int(self.global_history_reg,2)
         hashFunc = PC_index ^ tag_index
         match=0
         fila=0
@@ -54,13 +54,13 @@ class ie0521_bp:
                     else:
                         prediction = "T"
                     break
-                        
+        PC_index = int(PC) % self.size_of_bimodal                
         if match==0: #si no hubo match nos pasamos al bimodal
             bimodal_entry = self.bimodal[PC_index]
             #print(bimodal_entry)
-            if bimodal_entry<2:
+            if bimodal_entry<2:#00 01
                 prediction = "N"
-            else:
+            else:#10 11
                 prediction = "T"
         
         return prediction+"{}{}".format(match,fila)
@@ -89,7 +89,7 @@ class ie0521_bp:
         #en la tabla no podemos reemplazar un digito porque las strings no lo permiten, debemos reemplazar toda la string
         else:
             PC_index = int(PC) % self.size_of_tag_1
-            tag_index = int(self.global_history_reg[-self.tag_1Hist_size:],2)
+            tag_index = int(self.global_history_reg,2)
             hashFunc = PC_index ^ tag_index
             
             for i in range(self.size_of_tag_1):#recorremos la tabla
