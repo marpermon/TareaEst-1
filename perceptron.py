@@ -5,6 +5,7 @@ class perceptron:
         #ponemos 0s para tratar las historia como una string, luego interpretaremos esos 0s como -1s
         self.bits_to_index = bits_to_index
         self.size_of_branch_table = 2**self.bits_to_index
+        #vectores de peso para cada índice:
         self.branch_table = [[0]*(self.global_history_size+1) for i in range(self.size_of_branch_table)]
         #cada vector es 1 más grande que la historia porque el elemento 0 es el offset y no requiere un match con la historia
         self.total_predictions = 0
@@ -33,9 +34,10 @@ class perceptron:
         weights = self.branch_table[index]
         x_=self.global_history_reg
         y=weights[0] #offset
-        for i,j in zip(weights[1:],x_):
-            if i==int(j): y += 1
-            else: y += -1
+        for i,j in zip(weights[1:],x_):#arreglar: los pesos no tienen que ser 1 o -1
+            #if i==int(j): y += 1 
+            if i<(i+int(j)): y+=i # osea, si j es positivo
+            else: y += -i
 
         return y
   
