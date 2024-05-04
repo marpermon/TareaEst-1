@@ -2,18 +2,15 @@ class ie0521_bp:
     def __init__(self):
         
         self.global_history_size = 6 #def como sólo hay una tabla, la historia de ella es la misma que la global
-        self.global_history_reg = '0'*self.global_history_size #def  
-        self.global_history_pwr=2**(self.global_history_size) #def
+        self.global_history_reg = '0'*self.global_history_size #  
+        self.global_history_pwr=2**(self.global_history_size) #
         self.size_of_tag_1=2**(self.global_history_size)
         self.tag_1=['0' for i in range(self.size_of_tag_1)]
         self.lnt=len(str(self.size_of_tag_1))
-        #self.historia_fila=["x" for i in range(self.tag_1Hist_size)]
         self.bits_to_index = 4
         self.size_of_bimodal = 2**self.bits_to_index
         self.bimodal = [0 for i in range(self.size_of_bimodal)]
-        
-        #el pregictor no tiene u porque sólo tiene una tabla taggeada, para que u sirva debe tener más de una
-        
+                
         self.total_predictions = 0
         self.total_taken_pred_taken = 0
         self.total_taken_pred_not_taken = 0
@@ -57,7 +54,6 @@ class ie0521_bp:
         PC_index = int(PC) % self.size_of_bimodal                
         if match==0: #si no hubo match nos pasamos al bimodal
             bimodal_entry = self.bimodal[PC_index]
-            #print(bimodal_entry)
             if bimodal_entry<2:#00 01
                 prediction = "N"
             else:#10 11
@@ -65,8 +61,6 @@ class ie0521_bp:
         
         return prediction+"{}{}".format(match,fila)
             
-        """if int(self.tag_1[i][self.tag_1Hist_size]) in range(1,8):
-    #para que no se sature el contador int(self.tag_1[i][self.tag_1Hist_size])"""
 
     def update(self, PC, result, pred):
         #siempre se actualiza el bimodal
@@ -94,7 +88,7 @@ class ie0521_bp:
             
             for i in range(self.size_of_tag_1):#recorremos la tabla
                 if self.tag_1[i]== '0':
-                    self.tag_1[i]='0'*(self.lnt-len(str(hashFunc)))+str(hashFunc)+'0'
+                    self.tag_1[i]='0'*(self.lnt-len(str(hashFunc)))+str(hashFunc)+'3'
                     break
                 
         self.global_history_reg = self.global_history_reg[-self.global_history_size+1:] #eliminamos la primera
@@ -102,7 +96,6 @@ class ie0521_bp:
             self.global_history_reg+='1'
         else:
             self.global_history_reg+='0'
-        #print("GHR = "+self.global_history_reg)
 
         #Update stats
         if result == "T" and result == prediction:
