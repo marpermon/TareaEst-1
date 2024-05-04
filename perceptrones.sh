@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define two arrays
-BitsPC=(4 8 12 16 20)
+BitsPC=(16 20)
 globalH=(2 6 8 16 20)
 
 # Iterate over the elements of the first array
